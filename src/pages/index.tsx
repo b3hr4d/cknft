@@ -1,25 +1,25 @@
-import Balance from "components/Balance"
-import Wallet from "components/Wallet"
 import Head from "next/head"
-import Image from "next/image"
-import { wagmiConfig } from "service/config"
+
 import styles from "styles/Home.module.css"
+
+import Wallet from "components/Wallet"
+import Image from "next/image"
+import { config } from "service/config"
 import { WagmiConfig } from "wagmi"
 
 function HomePage() {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Internet Computer</title>
+        <title>ETH payment</title>
       </Head>
       <main className={styles.main}>
         <h3 className={styles.title}>
-          Welcome to the Internet Computer starter template
+          Direct Ethereum Payment on the Internet Computer
         </h3>
-        <WagmiConfig config={wagmiConfig}>
+        <WagmiConfig config={config}>
           <Wallet />
         </WagmiConfig>
-        <Balance />
       </main>
       <footer className={styles.footer}>
         <a
