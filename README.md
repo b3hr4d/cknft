@@ -110,5 +110,7 @@ dfx canister call icrc7 icrc7_transfer '(100)'
 
 ### CKNFT
 `https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=6yxaq-riaaa-aaaap-abkpa-cai`
-### Bitfinity Conctract
+### Bitfinity Contract
+`https://explorer.bitfinity.network/tx/0xcb3f9de62d24bb0d7291fe178f0937978d67e22c3bed891154cc890b8a279837`
+### Sepolia Contract
 `https://sepolia.etherscan.io/address/0x306ae05d45dc604df1f83a3f50c527c764c6f2f4`
