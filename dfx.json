@@ -1,5 +1,15 @@
 {
   "canisters": {
+    "eth_rpc": {
+      "type": "custom",
+      "candid": "https://github.com/internet-computer-protocol/ic-eth-rpc/releases/latest/download/eth_rpc.did",
+      "wasm": "https://github.com/internet-computer-protocol/ic-eth-rpc/releases/latest/download/eth_rpc_dev.wasm.gz",
+      "remote": {
+        "id": {
+          "ic": "6yxaq-riaaa-aaaap-abkpa-cai"
+        }
+      }
+    },
     "payment": {
       "type": "rust",
       "candid": "backend/payment/payment.did",

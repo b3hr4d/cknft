@@ -1,25 +1,43 @@
-type Result = record {
-  r : text;
-  s : text;
-  v : text;
-  to : text;
-  gas : text;
-  value : text;
-  block_hash : text;
-  from : text;
-  transaction_index : text;
-  hash : text;
-  block_number : text;
-  nonce : text;
-  input : text;
-  gas_price : text;
+type ICRC1TransferError = variant {
+  GenericError : record { message : text; error_code : nat };
+  TemporarilyUnavailable;
+  BadBurn : record { min_burn_amount : nat };
+  Duplicate : record { duplicate_of : nat };
+  BadFee : record { expected_fee : nat };
+  CreatedInFuture : record { ledger_time : nat64 };
+  TooOld;
+  InsufficientFunds : record { balance : nat };
 };
-type Result_1 = variant { Ok : Root; Err : text };
-type Root = record { id : int64; result : Result; jsonrpc : text };
-service : {
+type ICRC2ApproveError = variant {
+  GenericError : record { message : text; error_code : nat };
+  TemporarilyUnavailable;
+  Duplicate : record { duplicate_of : nat };
+  BadFee : record { expected_fee : nat };
+  AllowanceChanged : record { current_allowance : nat };
+  CreatedInFuture : record { ledger_time : nat64 };
+  TooOld;
+  Expired : record { ledger_time : nat64 };
+  InsufficientFunds : record { balance : nat };
+};
+type Result = variant { Ok : nat; Err : ICRC2ApproveError };
+type Result_1 = variant { Ok : nat; Err : ICRC1TransferError };
+type Result_2 = variant { Ok : RetrieveEthRequest; Err : WithdrawalError };
+type RetrieveEthRequest = record { block_index : nat };
+type WithdrawalError = variant {
+  TemporarilyUnavailable : text;
+  InsufficientAllowance : record { allowance : nat };
+  AmountTooLow : record { min_withdrawal_amount : nat };
+  InsufficientFunds : record { balance : nat };
+};
+service : (opt text) -> {
+  approve : (nat) -> (Result);
   balance : () -> (nat);
-  deposit_principal : () -> (text) query;
-  eth_get_transaction_by_hash : (text) -> (Result_1);
-  expected_input : () -> (text) query;
+  buy_item : (text, text) -> (nat64);
+  canister_deposit_principal : () -> (text) query;
+  get_items : () -> (vec record { text; nat }) query;
+  get_transaction_list : () -> (vec record { text; text }) query;
+  set_item : (text, nat) -> ();
+  transfer : (text, nat) -> (Result_1);
   verify_transaction : (text) -> (nat, text);
+  withdraw : (nat, text) -> (Result_2);
 }

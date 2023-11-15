@@ -25,4 +25,6 @@ target/
 Cargo.lock
 package-lock.json
 
+.yarn/*
+
 
