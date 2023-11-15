@@ -20,21 +20,6 @@ accept payment for them using cross chain token such as ckBTC.
 
 # To Reproduce:
 
-## Step 1: Clone the Starter Repository
-
-We'll begin by cloning the [`ic-rust-nextjs`](https://github.com/b3hr4d/ic-rust-nextjs) repository, which serves as our starter template.
-
-
-### Cloning the Repository
-
-To clone the repository, open your terminal and run:
-
-```bash
-git clone https://github.com/b3hr4d/ic-rust-nextjs.git
-```
-
-## Step 2: Run the Project Locally
-
 After cloning the repository, the next step is to run the project locally to ensure everything is set up correctly. Follow the commands below based on your package manager (Yarn or npm).
 
 ### Installing Dependencies
@@ -78,8 +63,6 @@ npm run dev
 ```
 Open your browser and navigate to [http://localhost:3000](http://localhost:3000) to see your app running.
 
-![Alt text](assets/starting.png)
-
 ### Minting NFT
 
 Finally, to mint the ICRC7 NFT:
@@ -102,7 +85,8 @@ dfx deploy icrc7 --argument '(record {
   image=null;    
   supply_cap=null;    
 })'
-
+```
+```bash
 # Mints token
 dfx canister call icrc7 icrc7_mint '(record{
   id=100;
@@ -114,11 +98,12 @@ dfx canister call icrc7 icrc7_mint '(record{
   subaccount=null;
   };
 })'
-
 ```
+<img width="1617" alt="PNG image" src="https://github.com/b3hr4d/cknft/assets/35742176/b19c185c-997b-46fe-ae47-304feed10155">
 
 ### Bridging NFT
 
 dfx canister call icrc7 icrc7_transfer '(100)'
 
+<img width="1617" alt="PNG image" src="https://github.com/b3hr4d/cknft/assets/35742176/cf433921-44ea-4a1a-9d38-00079266e08c">
 
