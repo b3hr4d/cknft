@@ -107,3 +107,8 @@ dfx canister call icrc7 icrc7_transfer '(100)'
 
 <img width="1617" alt="PNG image" src="https://github.com/b3hr4d/cknft/assets/35742176/cf433921-44ea-4a1a-9d38-00079266e08c">
 
+
+### CKNFT
+`https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=6yxaq-riaaa-aaaap-abkpa-cai`
+### Bitfinity Conctract
+`https://sepolia.etherscan.io/address/0x306ae05d45dc604df1f83a3f50c527c764c6f2f4`
