@@ -106,4 +106,5 @@ fn expected_input() -> String {
     vec_to_hex_string_with_0x(input)
 }
 
+// Always keep this on the bottom
 ic_cdk::export_candid!();
