@@ -38,7 +38,7 @@ const Item: React.FC<ItemProps> = ({ name, price }) => {
       ) : (
         <>
           <h3>{name}</h3>
-          <div>{formatEther(price).toString()} ETH</div>
+          <div>{formatEther(price).toString()} USDE</div>
           <button onClick={() => write()}>Buy {name}</button>
         </>
       )}

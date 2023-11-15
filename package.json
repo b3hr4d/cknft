@@ -33,10 +33,18 @@
     "typescript": "5.2.2"
   },
   "dependencies": {
+    "@dfinity/auth-client": "^0.20.0",
+    "@dfinity/identity": "^0.20.0",
+    "@infu/icblast": "^2.0.44",
     "@re-actor/core": "^0.0.7",
+    "crypto-js": "^4.2.0",
+    "get-random-values": "^3.0.0",
+    "isomorphic-fetch": "^3.0.0",
+    "js-sha256": "^0.10.1",
     "next": "^13.5",
     "react": "^18.2",
     "react-dom": "^18.2",
+    "react-qr-code": "^2.0.12",
     "viem": "^1.16.6",
     "wagmi": "^1.4.4"
   }

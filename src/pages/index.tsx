@@ -11,11 +11,11 @@ function HomePage() {
   return (
     <div className={styles.container}>
       <Head>
-        <title>ETH payment</title>
+        <title>ckNFT</title>
       </Head>
       <main className={styles.main}>
         <h3 className={styles.title}>
-          Direct Ethereum Payment on the Internet Computer
+          Direct EVM ckNFT for ICRC7
         </h3>
         <WagmiConfig config={config}>
           <Wallet />

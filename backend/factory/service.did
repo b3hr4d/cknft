@@ -1,0 +1,11 @@
+type Account = record { owner : principal; subaccount : opt vec nat8 };
+type CreateArg = record {
+  supply_cap : opt nat;
+  name : text;
+  description : opt text;
+  royalties : opt nat16;
+  image : opt vec nat8;
+  royalties_recipient : opt Account;
+  symbol : text;
+};
+service : { create_icrc7_collection : (CreateArg) -> (principal) }
