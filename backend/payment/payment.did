@@ -1,0 +1,25 @@
+type Result = record {
+  r : text;
+  s : text;
+  v : text;
+  to : text;
+  gas : text;
+  value : text;
+  block_hash : text;
+  from : text;
+  transaction_index : text;
+  hash : text;
+  block_number : text;
+  nonce : text;
+  input : text;
+  gas_price : text;
+};
+type Result_1 = variant { Ok : Root; Err : text };
+type Root = record { id : int64; result : Result; jsonrpc : text };
+service : {
+  balance : () -> (nat);
+  deposit_principal : () -> (text) query;
+  eth_get_transaction_by_hash : (text) -> (Result_1);
+  expected_input : () -> (text) query;
+  verify_transaction : (text) -> (nat, text);
+}

@@ -1,0 +1,26 @@
+{
+  "canisters": {
+    "payment": {
+      "type": "rust",
+      "candid": "backend/payment/payment.did",
+      "package": "payment",
+      "declarations": {
+        "node_compatibility": true
+      }
+    },
+    "frontend": {
+      "dependencies": [
+        "payment"
+      ],
+      "frontend": {
+        "entrypoint": "out/index.html"
+      },
+      "source": [
+        "out"
+      ],
+      "type": "assets"
+    }
+  },
+  "output_env_file": ".env.local",
+  "version": 1
+}
