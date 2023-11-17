@@ -1,3 +1,3 @@
 [workspace]
 resolver = "2"
-members = ["backend/payment"]
+members = ["backend/payment", "backend/icrc7", "backend/factory"]

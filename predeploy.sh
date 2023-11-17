@@ -13,6 +13,12 @@ for app_root in "$backend_dir"/*; do
     did_file="$app_root/$package.did"
 
     echo "${green}Building $package in $app_root${no_color}"
+
+    if [ ! -f "$app_root/Cargo.toml" ]; then
+        echo "${yellow}No Cargo.toml found in $app_root. Skipping $package.${no_color}"
+        continue
+    fi
+
     cargo build --manifest-path="$app_root/Cargo.toml" \
         --target wasm32-unknown-unknown \
         --release \

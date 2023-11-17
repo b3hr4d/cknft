@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import "openzeppelin-contracts/token/ERC20/ERC20.sol";
-import "openzeppelin-contracts/token/ERC20/extensions/ERC20Permit.sol";
-import "openzeppelin-contracts/access/Ownable.sol";
-import "openzeppelin-contracts/utils/Pausable.sol";
-import "openzeppelin-contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /// Contract for the ERC20 token that represents ICP on Ethereum.
 /// The minter canister on the IC shall be the owner of this contract.
@@ -17,7 +17,11 @@ contract CkIcp is ERC20, ERC20Permit, Ownable, Pausable {
   mapping(uint256 => bool) public used;
 
   event SelfMint(uint256 indexed msgid);
-  event BurnToIcp(uint256 amount, bytes32 indexed principal, bytes32 indexed subaccount);
+  event BurnToIcp(
+    uint256 amount,
+    bytes32 indexed principal,
+    bytes32 indexed subaccount
+  );
   event BurnToIcpAccountId(uint256 amount, bytes32 indexed accountId);
 
   /// When deploying, set the owner to the minter canister on the IC
@@ -60,7 +64,9 @@ contract CkIcp is ERC20, ERC20Permit, Ownable, Pausable {
     require(!used[msgid], "MsgId already used");
     require(
       _verifyOwnerSignature(
-        keccak256(abi.encode(amount, to, msgid, expiry, block.chainid, address(this))),
+        keccak256(
+          abi.encode(amount, to, msgid, expiry, block.chainid, address(this))
+        ),
         signature
       ),
       "Invalid signature"
@@ -89,13 +95,19 @@ contract CkIcp is ERC20, ERC20Permit, Ownable, Pausable {
     );
   }
 
-  function burnToAccountId(uint256 amount, bytes32 accountId) public whenNotPaused {
+  function burnToAccountId(
+    uint256 amount,
+    bytes32 accountId
+  ) public whenNotPaused {
     require(
       amount < (2 ** 64 - 1) * 10 ** (decimals() - ICP_TOKEN_PRECISION),
       "Amount too large"
     );
     _burn(_msgSender(), amount);
-    emit BurnToIcpAccountId(amount / 10 ** (decimals() - ICP_TOKEN_PRECISION), accountId);
+    emit BurnToIcpAccountId(
+      amount / 10 ** (decimals() - ICP_TOKEN_PRECISION),
+      accountId
+    );
   }
 
   /// # Internal functions

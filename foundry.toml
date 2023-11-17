@@ -1,5 +1,5 @@
 [profile.default]
-src = "src"
+src = "backend/ethereum"
 test = "test"
 out = "out"
 libs = ["lib"]
