@@ -1,10 +1,10 @@
 [package]
-name = "ckicp-minter"
+name = "cknft"
 version = "0.1.0"
 edition = "2021"
 
 [[bin]]
-name = "ckicp-minter"
+name = "cknft"
 path = "src/main.rs"
 
 [dependencies]
@@ -24,7 +24,12 @@ icrc-ledger-types.workspace = true
 k256.workspace = true
 lazy_static.workspace = true
 num-traits.workspace = true
-rustic = { workspace = true, features = ["access", "pausable", "reentrancy", "lifecycle"] }
+rustic = { workspace = true, features = [
+    "access",
+    "pausable",
+    "reentrancy",
+    "lifecycle",
+] }
 rustic-macros.workspace = true
 serde.workspace = true
 serde_bytes.workspace = true

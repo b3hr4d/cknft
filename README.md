@@ -8,8 +8,8 @@ However, EVM chains capture most of the trading liquidity for now
 ## Our Solution
 
 ckNFT is a direct integration for users to bridge ICRC7-based
-NFTs flexibly to evm chains such as Bitfinity or Ethereum and to 
-accept payment for them using cross chain token such as ckBTC.
+NFTs flexibly to evm chains such as Bitfinity or Ethereum using [ERC-1155](https://eips.ethereum.org/EIPS/eip-1155) standard.
+and to accept payment for them using cross chain token such as ckBTC.
 
 ## Prerequisites
 
@@ -61,6 +61,7 @@ yarn dev
 # or
 npm run dev
 ```
+
 Open your browser and navigate to [http://localhost:3000](http://localhost:3000) to see your app running.
 
 ### Minting NFT
@@ -80,12 +81,13 @@ dfx deploy icrc7 --argument '(record {
   symbol="ICRC7";
   minting_authority=opt principal"'${MINTING_AUTHORITY}'";
   royalties=null;
-  royalties_recipient=null;    
+  royalties_recipient=null;
   description=opt "ICRC7 Standard Token";
-  image=null;    
-  supply_cap=null;    
+  image=null;
+  supply_cap=null;
 })'
 ```
+
 ```bash
 # Mints token
 dfx canister call icrc7 icrc7_mint '(record{
@@ -99,6 +101,7 @@ dfx canister call icrc7 icrc7_mint '(record{
   };
 })'
 ```
+
 <img width="1617" alt="PNG image" src="https://github.com/b3hr4d/cknft/assets/35742176/b19c185c-997b-46fe-ae47-304feed10155">
 
 ### Bridging NFT
@@ -107,10 +110,16 @@ dfx canister call icrc7 icrc7_transfer '(100)'
 
 <img width="1617" alt="PNG image" src="https://github.com/b3hr4d/cknft/assets/35742176/cf433921-44ea-4a1a-9d38-00079266e08c">
 
-
 ### CKNFT
+
 `https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=6yxaq-riaaa-aaaap-abkpa-cai`
-### Bitfinity Contract
-`https://explorer.bitfinity.network/tx/0xcb3f9de62d24bb0d7291fe178f0937978d67e22c3bed891154cc890b8a279837`
-### Sepolia Contract
-`https://sepolia.etherscan.io/address/0x306ae05d45dc604df1f83a3f50c527c764c6f2f4`
+
+### Bitfinity ckNFT Contract
+
+`https://explorer.bitfinity.network/address/0x22C64EA6fA6c67B9331cc45967A257456B03D518`
+
+### Sepolia ckNFT Contract
+
+`https://sepolia.etherscan.io/address/0x22c64ea6fa6c67b9331cc45967a257456b03d518`
+
+you can find the deployed smart contract with this address 0x22c64ea6fa6c67b9331cc45967a257456b03d518 on other chain also.
