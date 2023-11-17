@@ -86,11 +86,11 @@ export const idlFactory = ({ IDL }) => {
   });
   const Result_1 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : TransferError });
   const SelfMintArgs = IDL.Record({
+    'id' : IDL.Nat64,
     'to' : IDL.Text,
     'msgid' : IDL.Nat,
     'signature' : IDL.Text,
     'expiry' : IDL.Nat64,
-    'amount' : IDL.Nat64,
   });
   return IDL.Service({
     'ethereum_address' : IDL.Func([], [IDL.Text], ['query']),
@@ -118,7 +118,11 @@ export const idlFactory = ({ IDL }) => {
     'icrc7_tokens_of' : IDL.Func([ICRCAccount], [IDL.Vec(IDL.Nat)], ['query']),
     'icrc7_total_supply' : IDL.Func([], [IDL.Nat], ['query']),
     'icrc7_transfer' : IDL.Func([TransferArgs], [Result_1], []),
-    'mint_cknft' : IDL.Func([IDL.Nat, IDL.Nat64, IDL.Text], [SelfMintArgs], []),
+    'mint_cknft' : IDL.Func(
+        [IDL.Nat64, IDL.Nat64, IDL.Text],
+        [SelfMintArgs],
+        [],
+      ),
     'update_ckicp_state' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
     'update_config' : IDL.Func([CollectionConfig], [], []),
   });

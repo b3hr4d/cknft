@@ -52,7 +52,7 @@ pub struct MintArgs {
 
 #[derive(Clone, CandidType, serde::Serialize, serde::Deserialize)]
 pub struct MintStatus {
-    pub id: u128,
+    pub id: u64,
     pub amount: u128,
     pub expiry: u64,
     pub state: MintState,
@@ -60,7 +60,7 @@ pub struct MintStatus {
 
 #[derive(Clone, CandidType, Deserialize)]
 pub struct SelfMintArgs {
-    pub amount: u64,
+    pub id: u64,
     pub to: String,
     pub msgid: u128,
     pub expiry: u64,

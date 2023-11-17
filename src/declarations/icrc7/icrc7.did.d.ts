@@ -70,11 +70,11 @@ export type Result = { 'Ok' : bigint } |
 export type Result_1 = { 'Ok' : bigint } |
   { 'Err' : TransferError };
 export interface SelfMintArgs {
+  'id' : bigint,
   'to' : string,
   'msgid' : bigint,
   'signature' : string,
   'expiry' : bigint,
-  'amount' : bigint,
 }
 export interface Standard { 'url' : string, 'name' : string }
 export interface TransferArgs {

@@ -64,11 +64,11 @@ type MintArgs = record {
 type Result = variant { Ok : nat; Err : ApprovalError };
 type Result_1 = variant { Ok : nat; Err : TransferError };
 type SelfMintArgs = record {
+  id : nat64;
   to : text;
   msgid : nat;
   signature : text;
   expiry : nat64;
-  amount : nat64;
 };
 type Standard = record { url : text; name : text };
 type TransferArgs = record {
@@ -110,7 +110,7 @@ service : (CollectionConfig) -> {
   icrc7_tokens_of : (ICRCAccount) -> (vec nat) query;
   icrc7_total_supply : () -> (nat) query;
   icrc7_transfer : (TransferArgs) -> (Result_1);
-  mint_cknft : (nat, nat64, text) -> (SelfMintArgs);
+  mint_cknft : (nat64, nat64, text) -> (SelfMintArgs);
   update_ckicp_state : () -> (vec nat8);
   update_config : (CollectionConfig) -> ();
 }

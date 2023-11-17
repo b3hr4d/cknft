@@ -425,7 +425,7 @@ pub fn update_config(arg: CollectionConfig) {
 }
 
 #[update]
-pub async fn mint_cknft(id: u128, chain_id: u64, target_eth_wallet: String) -> SelfMintArgs {
+pub async fn mint_cknft(id: u64, chain_id: u64, target_eth_wallet: String) -> SelfMintArgs {
     let caller = ic_cdk::caller();
     let caller_subaccount = Subaccount::from(caller);
 
@@ -445,7 +445,7 @@ pub async fn mint_cknft(id: u128, chain_id: u64, target_eth_wallet: String) -> S
     let now = ic_cdk::api::time();
     let expiry = now / 1_000_000_000 + config.tx_window;
 
-    fn update_status(msg_id: u128, id: u128, expiry: u64, state: MintState) {
+    fn update_status(msg_id: u128, id: u64, expiry: u64, state: MintState) {
         STATUS_MAP.with(|sm| {
             let mut sm = sm.borrow_mut();
             sm.insert(
@@ -466,7 +466,7 @@ pub async fn mint_cknft(id: u128, chain_id: u64, target_eth_wallet: String) -> S
     let transfer_args = TransferArgs {
         to: ICRCAccount::from(ic_cdk::id()),
         from: ICRCAccount::from(caller),
-        token_ids: vec![id],
+        token_ids: vec![id as u128],
         memo: None,
         is_atomic: None,
         created_at_time: None,
@@ -477,11 +477,10 @@ pub async fn mint_cknft(id: u128, chain_id: u64, target_eth_wallet: String) -> S
 
     // Generate tECDSA signature
     // payload is (amount, to, msgId, expiry, chainId, cknft_eth_address), 32 bytes each
-    let amount_to_transfer = 1u64;
     let cknft_eth_address = hex_string_with_0x_to_vec(&config.cknft_eth_address).unwrap();
 
     let mut payload_to_sign: [u8; 192] = [0; 192];
-    payload_to_sign[24..32].copy_from_slice(&amount_to_transfer.to_be_bytes());
+    payload_to_sign[24..32].copy_from_slice(&u64::from(id.clone()).to_be_bytes());
     payload_to_sign[44..64]
         .copy_from_slice(&hex_string_with_0x_to_vec(&target_eth_wallet).unwrap());
     payload_to_sign[80..96].copy_from_slice(&msg_id.to_be_bytes());
@@ -529,7 +528,7 @@ pub async fn mint_cknft(id: u128, chain_id: u64, target_eth_wallet: String) -> S
 
     // Return tECDSA signature
     SelfMintArgs {
-        amount: amount_to_transfer,
+        id,
         to: target_eth_wallet,
         msgid: msg_id,
         expiry,
