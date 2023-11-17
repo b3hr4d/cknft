@@ -18,6 +18,7 @@ export type ApprovalError = {
 export interface CollectionConfig {
   'supply_cap' : [] | [bigint],
   'tx_window' : bigint,
+  'ecdsa_key_name' : string,
   'permitted_drift' : bigint,
   'name' : string,
   'description' : [] | [string],
@@ -26,6 +27,7 @@ export interface CollectionConfig {
   'royalty_recipient' : [] | [ICRCAccount],
   'image' : [] | [string],
   'symbol' : string,
+  'cknft_eth_address' : string,
 }
 export interface CollectionMetadata {
   'icrc7_supply_cap' : [] | [bigint],
@@ -67,6 +69,13 @@ export type Result = { 'Ok' : bigint } |
   { 'Err' : ApprovalError };
 export type Result_1 = { 'Ok' : bigint } |
   { 'Err' : TransferError };
+export interface SelfMintArgs {
+  'to' : string,
+  'msgid' : bigint,
+  'signature' : string,
+  'expiry' : bigint,
+  'amount' : bigint,
+}
 export interface Standard { 'url' : string, 'name' : string }
 export interface TransferArgs {
   'to' : ICRCAccount,
@@ -86,16 +95,19 @@ export type TransferError = {
   { 'CreatedInFuture' : { 'ledger_time' : bigint } } |
   { 'TooOld' : null };
 export interface _SERVICE {
+  'ethereum_address' : ActorMethod<[], string>,
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
   'icrc7_approve' : ActorMethod<[ApprovalArgs], Result>,
   'icrc7_balance_of' : ActorMethod<[ICRCAccount], bigint>,
   'icrc7_collection_metadata' : ActorMethod<[], CollectionMetadata>,
+  'icrc7_config' : ActorMethod<[], CollectionConfig>,
   'icrc7_description' : ActorMethod<[], [] | [string]>,
   'icrc7_image' : ActorMethod<[], [] | [string]>,
   'icrc7_metadata' : ActorMethod<[bigint], Array<[string, ICRC1MetadataValue]>>,
   'icrc7_mint' : ActorMethod<[MintArgs], bigint>,
   'icrc7_name' : ActorMethod<[], string>,
   'icrc7_owner_of' : ActorMethod<[bigint], ICRCAccount>,
+  'icrc7_public_key' : ActorMethod<[], Uint8Array | number[]>,
   'icrc7_royalties' : ActorMethod<[], [] | [number]>,
   'icrc7_royalty_recipient' : ActorMethod<[], [] | [ICRCAccount]>,
   'icrc7_supply_cap' : ActorMethod<[], [] | [bigint]>,
@@ -104,4 +116,7 @@ export interface _SERVICE {
   'icrc7_tokens_of' : ActorMethod<[ICRCAccount], Array<bigint>>,
   'icrc7_total_supply' : ActorMethod<[], bigint>,
   'icrc7_transfer' : ActorMethod<[TransferArgs], Result_1>,
+  'mint_cknft' : ActorMethod<[bigint, bigint, string], SelfMintArgs>,
+  'update_ckicp_state' : ActorMethod<[], Uint8Array | number[]>,
+  'update_config' : ActorMethod<[CollectionConfig], undefined>,
 }

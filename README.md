@@ -116,10 +116,15 @@ dfx canister call icrc7 icrc7_transfer '(100)'
 
 ### Bitfinity ckNFT Contract
 
-`https://explorer.bitfinity.network/address/0x22C64EA6fA6c67B9331cc45967A257456B03D518`
+`https://explorer.bitfinity.network/address/0x10624aF1B7223984b308a179911CE02A1B796C6b`
 
 ### Sepolia ckNFT Contract
 
-`https://sepolia.etherscan.io/address/0x22c64ea6fa6c67b9331cc45967a257456b03d518`
+`https://sepolia.etherscan.io/address/0x10624aF1B7223984b308a179911CE02A1B796C6b`
 
-you can find the deployed smart contract with this address 0x22c64ea6fa6c67b9331cc45967a257456b03d518 on other chain also.
+you can find the deployed smart contract with this address 0x10624aF1B7223984b308a179911CE02A1B796C6b on other chain also.
+
+### Testing
+
+Create Signatures for the following NFT:
+![Alt text](assets/signature.png)

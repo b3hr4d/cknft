@@ -49,3 +49,32 @@ pub struct MintArgs {
     pub image: Option<Vec<u8>>,
     pub to: ICRCAccount,
 }
+
+#[derive(Clone, CandidType, serde::Serialize, serde::Deserialize)]
+pub struct MintStatus {
+    pub id: u128,
+    pub amount: u128,
+    pub expiry: u64,
+    pub state: MintState,
+}
+
+#[derive(Clone, CandidType, Deserialize)]
+pub struct SelfMintArgs {
+    pub amount: u64,
+    pub to: String,
+    pub msgid: u128,
+    pub expiry: u64,
+    pub signature: String,
+}
+
+#[derive(
+    CandidType, serde::Serialize, serde::Deserialize, Default, Clone, Debug, PartialEq, Eq,
+)]
+pub enum MintState {
+    #[default]
+    Init,
+    FundReceived,
+    Signed,
+    Confirmed,
+    Expired,
+}

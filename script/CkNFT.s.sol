@@ -10,7 +10,7 @@ contract CkNFTScript is Script {
   function run() public {
     vm.broadcast();
 
-    new CkNFT{salt: bytes32(uint256(2))}(
+    new CkNFT{salt: bytes32(uint256(0))}(
       0xB51f94aEEebE55A3760E8169A22e536eBD3a6DCB
     );
   }

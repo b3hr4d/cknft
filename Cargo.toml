@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["backend/payment", "backend/icrc7", "backend/cknft"]
+members = ["backend/payment", "backend/icrc7"]
 
 [workspace.dependencies]
 async-trait = "0.1.73"

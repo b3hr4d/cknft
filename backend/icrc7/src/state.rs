@@ -1,6 +1,7 @@
 use crate::{
+    crypto::EcdsaSignature,
     errors::{ApprovalError, TransferError},
-    types::CollectionMetadata,
+    types::{CollectionMetadata, MintStatus},
 };
 use b3_utils::{
     ledger::{ICRC1MetadataValue, ICRCAccount},
@@ -8,6 +9,8 @@ use b3_utils::{
         init_stable_mem_refcell,
         types::{Bound, DefaultStableBTreeMap, DefaultStableCell, DefaultStableVec, Storable},
     },
+    nonce::Nonce,
+    Subaccount,
 };
 use candid::{CandidType, Decode, Encode, Nat, Principal};
 use serde_bytes::ByteBuf;
@@ -20,9 +23,20 @@ thread_local! {
     pub static TRANSFER_LOG: RefCell<DefaultStableVec<TransferLog>> = init_stable_mem_refcell("transfer_log", 3).unwrap();
     pub static TRANSACTION_ID: RefCell<DefaultStableCell<u128>> = init_stable_mem_refcell("transaction_id", 4).unwrap();
     pub static TOTAL_SUPPLY: RefCell<DefaultStableCell<u128>> = init_stable_mem_refcell("total_supply", 5).unwrap();
+    pub static NONCE_MAP: RefCell<DefaultStableBTreeMap<Subaccount, Nonce>> = init_stable_mem_refcell("nonce_map", 6).unwrap();
+    pub static STATUS_MAP: RefCell<DefaultStableBTreeMap<u128, MintStatus>> = init_stable_mem_refcell("status_map", 7).unwrap();
+    pub static SIGNATURE_MAP: RefCell<DefaultStableBTreeMap<u128, EcdsaSignature>> = init_stable_mem_refcell("signature_map", 8).unwrap();
+    pub static PUBLIC_KEY: RefCell<DefaultStableCell<Vec<u8>>> = init_stable_mem_refcell("cknft_state", 9).unwrap();
 }
 
-#[derive(CandidType, Serialize, Deserialize)]
+pub fn get_icrc7_config() -> CollectionConfig {
+    CONFIG.with(|ckicp_config| {
+        let ckicp_config = ckicp_config.borrow();
+        ckicp_config.get().clone()
+    })
+}
+
+#[derive(CandidType, Clone, Serialize, Deserialize)]
 pub struct CollectionConfig {
     pub name: String,
     pub symbol: String,
@@ -34,6 +48,8 @@ pub struct CollectionConfig {
     pub supply_cap: Option<u128>,
     pub tx_window: u64,
     pub permitted_drift: u64,
+    pub cknft_eth_address: String,
+    pub ecdsa_key_name: String,
 }
 
 impl Storable for CollectionConfig {
@@ -61,6 +77,8 @@ impl Default for CollectionConfig {
             supply_cap: None,
             tx_window: 0,
             permitted_drift: 0,
+            cknft_eth_address: String::new(),
+            ecdsa_key_name: String::new(),
         }
     }
 }
@@ -316,4 +334,32 @@ impl Approval {
             account,
         }
     }
+}
+
+impl Storable for MintStatus {
+    const BOUND: Bound = Bound::Bounded {
+        is_fixed_size: false,
+        max_size: 90,
+    };
+
+    fn to_bytes(&self) -> std::borrow::Cow<[u8]> {
+        std::borrow::Cow::Owned(Encode!(self).unwrap())
+    }
+
+    fn from_bytes(bytes: std::borrow::Cow<[u8]>) -> Self {
+        Decode!(bytes.as_ref(), Self).unwrap()
+    }
+}
+
+pub fn calc_msgid(caller: &Subaccount, nonce: Nonce) -> u128 {
+    let mut data = Vec::new();
+    data.extend_from_slice(caller.as_slice());
+    data.extend_from_slice(&nonce.to_le_bytes());
+    let hashed = b3_utils::ledger::raw_sha256(&data);
+    // Return XOR of 128 bit chunks of the hashed principal
+    let mut id = 0;
+    for i in 0..2 {
+        id ^= u128::from_le_bytes(hashed[i * 16..(i + 1) * 16].try_into().unwrap_or_default());
+    }
+    id
 }

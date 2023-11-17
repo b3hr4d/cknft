@@ -1,6 +1,6 @@
 use candid::CandidType;
 
-#[derive(CandidType, Clone)]
+#[derive(CandidType, Debug, Clone)]
 pub enum TransferError {
     Unauthorized { tokens_ids: Vec<u128> },
     TooOld,
@@ -10,7 +10,7 @@ pub enum TransferError {
     GenericError { error_code: u128, msg: String },
 }
 
-#[derive(CandidType, Clone)]
+#[derive(CandidType, Debug, Clone)]
 pub enum ApprovalError {
     Unauthorized { tokens_ids: Vec<u128> },
     TooOld,

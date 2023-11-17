@@ -6,6 +6,7 @@ export const idlFactory = ({ IDL }) => {
   const CollectionConfig = IDL.Record({
     'supply_cap' : IDL.Opt(IDL.Nat),
     'tx_window' : IDL.Nat64,
+    'ecdsa_key_name' : IDL.Text,
     'permitted_drift' : IDL.Nat64,
     'name' : IDL.Text,
     'description' : IDL.Opt(IDL.Text),
@@ -14,6 +15,7 @@ export const idlFactory = ({ IDL }) => {
     'royalty_recipient' : IDL.Opt(ICRCAccount),
     'image' : IDL.Opt(IDL.Text),
     'symbol' : IDL.Text,
+    'cknft_eth_address' : IDL.Text,
   });
   const HttpRequest = IDL.Record({
     'url' : IDL.Text,
@@ -83,11 +85,20 @@ export const idlFactory = ({ IDL }) => {
     'TooOld' : IDL.Null,
   });
   const Result_1 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : TransferError });
+  const SelfMintArgs = IDL.Record({
+    'to' : IDL.Text,
+    'msgid' : IDL.Nat,
+    'signature' : IDL.Text,
+    'expiry' : IDL.Nat64,
+    'amount' : IDL.Nat64,
+  });
   return IDL.Service({
+    'ethereum_address' : IDL.Func([], [IDL.Text], ['query']),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'icrc7_approve' : IDL.Func([ApprovalArgs], [Result], []),
     'icrc7_balance_of' : IDL.Func([ICRCAccount], [IDL.Nat], ['query']),
     'icrc7_collection_metadata' : IDL.Func([], [CollectionMetadata], ['query']),
+    'icrc7_config' : IDL.Func([], [CollectionConfig], ['query']),
     'icrc7_description' : IDL.Func([], [IDL.Opt(IDL.Text)], ['query']),
     'icrc7_image' : IDL.Func([], [IDL.Opt(IDL.Text)], ['query']),
     'icrc7_metadata' : IDL.Func(
@@ -98,6 +109,7 @@ export const idlFactory = ({ IDL }) => {
     'icrc7_mint' : IDL.Func([MintArgs], [IDL.Nat], []),
     'icrc7_name' : IDL.Func([], [IDL.Text], ['query']),
     'icrc7_owner_of' : IDL.Func([IDL.Nat], [ICRCAccount], ['query']),
+    'icrc7_public_key' : IDL.Func([], [IDL.Vec(IDL.Nat8)], ['query']),
     'icrc7_royalties' : IDL.Func([], [IDL.Opt(IDL.Nat16)], ['query']),
     'icrc7_royalty_recipient' : IDL.Func([], [IDL.Opt(ICRCAccount)], ['query']),
     'icrc7_supply_cap' : IDL.Func([], [IDL.Opt(IDL.Nat)], ['query']),
@@ -106,6 +118,9 @@ export const idlFactory = ({ IDL }) => {
     'icrc7_tokens_of' : IDL.Func([ICRCAccount], [IDL.Vec(IDL.Nat)], ['query']),
     'icrc7_total_supply' : IDL.Func([], [IDL.Nat], ['query']),
     'icrc7_transfer' : IDL.Func([TransferArgs], [Result_1], []),
+    'mint_cknft' : IDL.Func([IDL.Nat, IDL.Nat64, IDL.Text], [SelfMintArgs], []),
+    'update_ckicp_state' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
+    'update_config' : IDL.Func([CollectionConfig], [], []),
   });
 };
 export const init = ({ IDL }) => {
@@ -116,6 +131,7 @@ export const init = ({ IDL }) => {
   const CollectionConfig = IDL.Record({
     'supply_cap' : IDL.Opt(IDL.Nat),
     'tx_window' : IDL.Nat64,
+    'ecdsa_key_name' : IDL.Text,
     'permitted_drift' : IDL.Nat64,
     'name' : IDL.Text,
     'description' : IDL.Opt(IDL.Text),
@@ -124,6 +140,7 @@ export const init = ({ IDL }) => {
     'royalty_recipient' : IDL.Opt(ICRCAccount),
     'image' : IDL.Opt(IDL.Text),
     'symbol' : IDL.Text,
+    'cknft_eth_address' : IDL.Text,
   });
   return [CollectionConfig];
 };

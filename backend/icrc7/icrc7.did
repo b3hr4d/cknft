@@ -15,6 +15,7 @@ type ApprovalError = variant {
 type CollectionConfig = record {
   supply_cap : opt nat;
   tx_window : nat64;
+  ecdsa_key_name : text;
   permitted_drift : nat64;
   name : text;
   description : opt text;
@@ -23,6 +24,7 @@ type CollectionConfig = record {
   royalty_recipient : opt ICRCAccount;
   image : opt text;
   symbol : text;
+  cknft_eth_address : text;
 };
 type CollectionMetadata = record {
   icrc7_supply_cap : opt nat;
@@ -61,6 +63,13 @@ type MintArgs = record {
 };
 type Result = variant { Ok : nat; Err : ApprovalError };
 type Result_1 = variant { Ok : nat; Err : TransferError };
+type SelfMintArgs = record {
+  to : text;
+  msgid : nat;
+  signature : text;
+  expiry : nat64;
+  amount : nat64;
+};
 type Standard = record { url : text; name : text };
 type TransferArgs = record {
   to : ICRCAccount;
@@ -80,16 +89,19 @@ type TransferError = variant {
   TooOld;
 };
 service : (CollectionConfig) -> {
+  ethereum_address : () -> (text) query;
   http_request : (HttpRequest) -> (HttpResponse) query;
   icrc7_approve : (ApprovalArgs) -> (Result);
   icrc7_balance_of : (ICRCAccount) -> (nat) query;
   icrc7_collection_metadata : () -> (CollectionMetadata) query;
+  icrc7_config : () -> (CollectionConfig) query;
   icrc7_description : () -> (opt text) query;
   icrc7_image : () -> (opt text) query;
   icrc7_metadata : (nat) -> (vec record { text; ICRC1MetadataValue }) query;
   icrc7_mint : (MintArgs) -> (nat);
   icrc7_name : () -> (text) query;
   icrc7_owner_of : (nat) -> (ICRCAccount) query;
+  icrc7_public_key : () -> (vec nat8) query;
   icrc7_royalties : () -> (opt nat16) query;
   icrc7_royalty_recipient : () -> (opt ICRCAccount) query;
   icrc7_supply_cap : () -> (opt nat) query;
@@ -98,4 +110,7 @@ service : (CollectionConfig) -> {
   icrc7_tokens_of : (ICRCAccount) -> (vec nat) query;
   icrc7_total_supply : () -> (nat) query;
   icrc7_transfer : (TransferArgs) -> (Result_1);
+  mint_cknft : (nat, nat64, text) -> (SelfMintArgs);
+  update_ckicp_state : () -> (vec nat8);
+  update_config : (CollectionConfig) -> ();
 }
