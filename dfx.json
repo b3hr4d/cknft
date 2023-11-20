@@ -8,20 +8,14 @@
         "node_compatibility": true
       }
     },
-    "factory": {
-      "type": "rust",
-      "candid": "backend/factory/service.did",
-      "package": "factory",
-      "declarations": {
-        "node_compatibility": true
-      }
-    },
-    "payment": {
-      "type": "rust",
-      "candid": "backend/payment/payment.did",
-      "package": "payment",
-      "declarations": {
-        "node_compatibility": true
+    "evm_rpc": {
+      "type": "custom",
+      "candid": "https://github.com/internet-computer-protocol/ic-eth-rpc/releases/latest/download/evm_rpc.did",
+      "wasm": "https://github.com/internet-computer-protocol/ic-eth-rpc/releases/latest/download/evm_rpc_dev.wasm.gz",
+      "remote": {
+        "id": {
+          "ic": "a6d44-nyaaa-aaaap-abp7q-cai"
+        }
       }
     },
     "frontend": {
