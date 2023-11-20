@@ -1,15 +1,13 @@
-# Cross Chain NFT integration
+# ckNFT integration
 
 ## Problem Statement
 
-NFT’s on ICP are superior as they store the asset data WITH the token
-However, EVM chains capture most of the trading liquidity for now
+NFT’s on ICP are superior as they store the asset data WITH the token.
+However, EVM chains capture most of the trading liquidity for now.
 
 ## Our Solution
 
-ckNFT is a direct integration for users to bridge ICRC7-based
-NFTs flexibly to evm chains such as Bitfinity or Ethereum using [ERC-1155](https://eips.ethereum.org/EIPS/eip-1155) standard.
-and to accept payment for them using cross chain token such as ckBTC.
+ckNFT is a direct integration of an ICRC7-based NFT wit evm blockchains such as Bitfinity or Ethereum using [ERC-1155](https://eips.ethereum.org/EIPS/eip-1155) standard.
 
 ## Prerequisites
 
@@ -104,11 +102,9 @@ dfx canister call icrc7 icrc7_mint '(record{
 
 <img width="1617" alt="PNG image" src="https://github.com/b3hr4d/cknft/assets/35742176/b19c185c-997b-46fe-ae47-304feed10155">
 
-### Bridging NFT
+### Transfer NFT
 
 dfx canister call icrc7 icrc7_transfer '(100)'
-
-<img width="1617" alt="PNG image" src="https://github.com/b3hr4d/cknft/assets/35742176/cf433921-44ea-4a1a-9d38-00079266e08c">
 
 ### CKNFT
 
