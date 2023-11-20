@@ -1,4 +1,6 @@
-# ckNFT integration
+# ckNFT
+
+<img width="1617" alt="PNG image" src="https://raw.githubusercontent.com/b3hr4d/cknft/main/assets/image123.png">
 
 ## Problem Statement
 
@@ -102,11 +104,11 @@ dfx canister call icrc7 icrc7_mint '(record{
 
 <img width="1617" alt="PNG image" src="https://github.com/b3hr4d/cknft/assets/35742176/b19c185c-997b-46fe-ae47-304feed10155">
 
-### Transfer NFT
+### Transfer ckNFT
 
 dfx canister call icrc7 icrc7_transfer '(100)'
 
-### CKNFT
+### ckNFT Canister
 
 `https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=6yxaq-riaaa-aaaap-abkpa-cai`
 
