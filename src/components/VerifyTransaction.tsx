@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { useActorMethod } from "service/hello"
+import { useActorMethod } from "service/icrc7"
 
 interface VerifyTransactionProps {
   item: string

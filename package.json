@@ -33,10 +33,13 @@
     "typescript": "5.2.2"
   },
   "dependencies": {
-    "@dfinity/auth-client": "^0.20.0",
-    "@dfinity/identity": "^0.20.0",
+    "@dfinity/agent": "^0.20",
+    "@dfinity/auth-client": "^0.20",
+    "@dfinity/candid": "^0.20.1",
+    "@dfinity/identity": "^0.20",
+    "@dfinity/principal": "^0.20",
     "@infu/icblast": "^2.0.44",
-    "@re-actor/core": "^0.0.7",
+    "@re-actor/core": "^0.1.2",
     "crypto-js": "^4.2.0",
     "get-random-values": "^3.0.0",
     "isomorphic-fetch": "^3.0.0",

@@ -2,6 +2,7 @@ import Head from "next/head"
 
 import styles from "styles/Home.module.css"
 
+import Login from "components/Login"
 import Wallet from "components/Wallet"
 import Image from "next/image"
 import { config } from "service/config"
@@ -14,9 +15,8 @@ function HomePage() {
         <title>ckNFT</title>
       </Head>
       <main className={styles.main}>
-        <h3 className={styles.title}>
-          Direct EVM ckNFT for ICRC7
-        </h3>
+        <h3 className={styles.title}>Direct EVM ckNFT for ICRC7</h3>
+        <Login />
         <WagmiConfig config={config}>
           <Wallet />
         </WagmiConfig>

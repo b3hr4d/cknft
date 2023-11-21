@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import helperAbi from "service/abi.json"
-import { useActorMethod } from "service/hello"
+import { useActorMethod } from "service/icrc7"
 import { formatEther } from "viem"
 import { useContractWrite } from "wagmi"
 import Confirmation from "./Confirmation"
@@ -13,9 +13,8 @@ interface ItemProps {
 }
 
 const Item: React.FC<ItemProps> = ({ name, price }) => {
-  const { data: canisterDepositAddress, call } = useActorMethod(
-    "canister_deposit_principal"
-  )
+  const { data: canisterEthereumAddress, call } =
+    useActorMethod("ethereum_address")
 
   useEffect(() => {
     call()
@@ -26,7 +25,7 @@ const Item: React.FC<ItemProps> = ({ name, price }) => {
     abi: helperAbi,
     functionName: "deposit",
     value: price,
-    args: [canisterDepositAddress]
+    args: [canisterEthereumAddress]
   })
 
   return (

@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { useActorMethod } from "service/hello"
+import { useActorMethod } from "service/icrc7"
 import Item from "./Item"
 
 import styles from "styles/Shop.module.css"
@@ -7,7 +7,11 @@ import styles from "styles/Shop.module.css"
 interface ShopProps {}
 
 const Shop: React.FC<ShopProps> = ({}) => {
-  const { data: items, loading, call } = useActorMethod("get_items")
+  const {
+    data: items,
+    loading,
+    call
+  } = useActorMethod("icrc7_collection_metadata")
 
   useEffect(() => {
     call()
@@ -18,7 +22,8 @@ const Shop: React.FC<ShopProps> = ({}) => {
       {loading ? (
         <div>Loading...</div>
       ) : (
-        items?.map(([name, price]) => {
+        items &&
+        Object.entries(items)?.map(([name, price]) => {
           return <Item name={name} price={price} key={name} />
         })
       )}
