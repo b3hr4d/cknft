@@ -1,6 +1,6 @@
 # ckNFT
 
-<img width="1617" alt="PNG image" src="https://raw.githubusercontent.com/b3hr4d/cknft/main/assets/image123.png">
+![ckNFT-diagram](assets/ckNFT-diagram.png)
 
 ## Problem Statement
 
