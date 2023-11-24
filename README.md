@@ -47,9 +47,9 @@ npm run dfx:start
 Deploy your the backend canister to the local Internet Computer by running:
 
 ```bash
-yarn deploy icrc7
+yarn deploy icrc7 --argument '(record { tx_window=24; permitted_drift=2; name="Icrc7 Token"; symbol="ICRC7"; minting_authority=principal"'$(dfx identity get-principal)'";royalties=null;royalties_recipient=null;description=opt "ICRC7 Standard Token";image=null;supply_cap=null;cknft_eth_address="0x22c64ea6fa6c67b9331cc45967a257456b03d518";ecdsa_key_name="dfx_test_key";})'
 # or
-npm run deploy icrc7
+npm run deploy icrc7 --argument '(record { tx_window=24; permitted_drift=2; name="Icrc7 Token"; symbol="ICRC7"; minting_authority=principal"'$(dfx identity get-principal)'";royalties=null;royalties_recipient=null;description=opt "ICRC7 Standard Token";image=null;supply_cap=null;cknft_eth_address="0x22c64ea6fa6c67b9331cc45967a257456b03d518";ecdsa_key_name="dfx_test_key";})'
 ```
 
 ```bash
