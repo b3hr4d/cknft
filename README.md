@@ -75,26 +75,6 @@ Open your browser and navigate to [http://localhost:3000](http://localhost:3000)
 Finally, to mint the ICRC7 NFT:
 
 ```bash
-
-# Sets minting authority
-export MINTING_AUTHORITY=$(dfx identity get-principal)
-
-# Deploys your canisters to the replica and generates your candid interface
-dfx deploy icrc7 --argument '(record {
-  tx_window=24;
-  permitted_drift=2;
-  name="Icrc7 Token";
-  symbol="ICRC7";
-  minting_authority=opt principal"'${MINTING_AUTHORITY}'";
-  royalties=null;
-  royalties_recipient=null;
-  description=opt "ICRC7 Standard Token";
-  image=null;
-  supply_cap=null;
-})'
-```
-
-```bash
 # Mints token
 dfx canister call icrc7 icrc7_mint '(record{
   id=100;
