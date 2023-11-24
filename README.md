@@ -77,9 +77,9 @@ Finally, to mint the ICRC7 NFT:
 ```bash
 # Mints token
 dfx canister call icrc7 icrc7_mint '(record{
-  id=100;
-  name="Icrc7 100";
-  description=opt "100th token of the collection";
+  id=10;
+  name="Icrc7 10";
+  description=opt "10th token of the collection";
   image=null;
   to=record{
   owner=principal"2vxsx-fae";
@@ -92,7 +92,7 @@ dfx canister call icrc7 icrc7_mint '(record{
 
 ### Transfer ckNFT
 
-dfx canister call icrc7 icrc7_transfer '(100)'
+dfx canister call icrc7 icrc7_transfer '(10)'
 
 ### ckNFT Canister
 
