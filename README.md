@@ -47,9 +47,15 @@ npm run dfx:start
 Deploy your the backend canister to the local Internet Computer by running:
 
 ```bash
-yarn deploy hello
+yarn deploy icrc7
 # or
-npm run deploy hello
+npm run deploy icrc7
+```
+
+```bash
+yarn identity:deploy
+# or
+npm run identity:deploy
 ```
 
 ### Running the Next.js App

@@ -24,6 +24,7 @@
     "dfx:build": "sh ./predeploy.sh && dfx build",
     "predeploy": "sh ./predeploy.sh",
     "deploy": "sh ./predeploy.sh && dfx deploy",
+    "identity:deploy": "dfx deps deploy internet-identity",
     "generate": "dfx generate"
   },
   "devDependencies": {

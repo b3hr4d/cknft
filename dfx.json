@@ -8,6 +8,10 @@
         "node_compatibility": true
       }
     },
+    "internet-identity": {
+      "type": "pull",
+      "id": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+    },
     "evm_rpc": {
       "type": "custom",
       "candid": "https://github.com/internet-computer-protocol/ic-eth-rpc/releases/download/release-2023-09-29/eth_rpc.did",
