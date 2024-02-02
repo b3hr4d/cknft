@@ -96,7 +96,7 @@ dfx canister call icrc7 icrc7_transfer '(10)'
 
 ### ckNFT Canister
 
-`https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=6yxaq-riaaa-aaaap-abkpa-cai`
+`https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=i6s5o-xaaaa-aaaap-abrmq-cai`
 
 ### Bitfinity ckNFT Contract
 
