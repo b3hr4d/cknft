@@ -1,5 +1,4 @@
 pub mod crypto;
-pub mod errors;
 pub mod state;
 pub mod types;
 
@@ -7,10 +6,10 @@ use crate::crypto::EcdsaSignature;
 use crate::state::{calc_msgid, PUBLIC_KEY, SIGNATURE_MAP, STATUS_MAP};
 use crate::types::{CollectionMetadata, MintState, MintStatus, Standard};
 use crate::{
-    errors::{ApprovalError, TransferError},
     state::Token,
     state::{CollectionConfig, CONFIG},
-    types::{ApprovalArgs, MintArgs, TransferArgs},
+    types::TransferError,
+    types::{MintArgs, TransferArg},
 };
 use b3_utils::http::{HttpRequest, HttpResponse, HttpResponseBuilder};
 use b3_utils::ledger::{raw_keccak256, ICRC1MetadataValue, ICRCAccount};
@@ -26,7 +25,7 @@ use ic_cdk::{init, query, update};
 use k256::ecdsa::{RecoveryId, Signature, VerifyingKey};
 use state::{
     get_icrc7_config, get_total_supply, id_validity_check, increment_total_supply, increment_tx_id,
-    tx_deduplication_check, Approval, TransferLog, NONCE_MAP, TOKENS, TOTAL_SUPPLY, TRANSFER_LOG,
+    tx_deduplication_check, TransferLog, NONCE_MAP, TOKENS, TOTAL_SUPPLY, TRANSFER_LOG,
 };
 use std::collections::HashMap;
 use types::SelfMintArgs;
@@ -43,7 +42,7 @@ pub fn init(arg: CollectionConfig) {
 /// ======== Query ========
 
 #[query]
-pub fn icrc7_public_key() -> Vec<u8> {
+pub fn public_key() -> Vec<u8> {
     PUBLIC_KEY.with(|pk| pk.borrow().get().clone())
 }
 
@@ -78,23 +77,13 @@ pub fn icrc7_symbol() -> String {
 }
 
 #[query]
-pub fn icrc7_royalties() -> Option<u16> {
-    CONFIG.with(|c| c.borrow().get().royalties())
-}
-
-#[query]
-pub fn icrc7_royalty_recipient() -> Option<ICRCAccount> {
-    CONFIG.with(|c| c.borrow().get().royalty_recipient())
-}
-
-#[query]
 pub fn icrc7_description() -> Option<String> {
     CONFIG.with(|c| c.borrow().get().description())
 }
 
 #[query]
-pub fn icrc7_image() -> Option<String> {
-    CONFIG.with(|c| c.borrow().get().image())
+pub fn icrc7_logo() -> Option<String> {
+    CONFIG.with(|c| c.borrow().get().logo())
 }
 
 #[query]
@@ -172,14 +161,11 @@ pub fn icrc7_supported_standards() -> Vec<Standard> {
 /// ======== Update ========
 
 #[update]
-pub fn icrc7_transfer(arg: TransferArgs) -> Result<u128, TransferError> {
-    if arg.token_ids.len() == 0 {
-        ic_cdk::trap("No Token Provided")
-    }
-    // checking if the token for respective ids is available or not
-    id_validity_check(&arg.token_ids);
+pub fn icrc7_transfer(arg: TransferArg) -> Result<u128, TransferError> {
+    // checking if the token for the respective id is available or not
+    id_validity_check(arg.token_id);
 
-    let caller = ICRCAccount::new(ic_cdk::caller(), arg.spender_subaccount);
+    let caller = ICRCAccount::new(ic_cdk::caller(), arg.from_subaccount);
 
     let current_time = ic_cdk::api::time();
     let mut tx_deduplication: HashMap<u128, TransferError> = HashMap::new();
@@ -199,143 +185,62 @@ pub fn icrc7_transfer(arg: TransferArgs) -> Result<u128, TransferError> {
             });
         }
 
-        arg.token_ids.iter().for_each(|id| {
-            if let Some(index) = tx_deduplication_check(
-                permitted_past_time,
-                arg_time,
-                &arg.memo,
-                *id,
-                &caller,
-                &arg.to,
-            ) {
-                tx_deduplication.insert(
-                    *id,
-                    TransferError::Duplicate {
-                        duplicate_of: index as u128,
-                    },
-                );
-            }
-        });
-    }
-
-    let mut unauthorized: Vec<u128> = vec![];
-    arg.token_ids.iter().for_each(|id| {
-        let token = match TOKENS.with(|tokens| tokens.borrow().get(id)) {
-            None => ic_cdk::trap("Invalid Id"),
-            Some(token) => token,
-        };
-
-        let approval_check = token.approval_check(current_time + config.permitted_drift, &caller);
-        if token.owner != caller && !approval_check {
-            unauthorized.push(id.clone())
-        }
-    });
-
-    match arg.is_atomic {
-        // when atomic transfer is turned off
-        Some(false) => {
-            for id in arg.token_ids.iter() {
-                if let Some(e) = tx_deduplication.get(id) {
-                    return Err(e.clone());
-                }
-                let mut token = TOKENS.with(|tokens| tokens.borrow().get(id).unwrap());
-
-                match token.transfer(
-                    current_time + config.permitted_drift,
-                    &caller,
-                    arg.to.clone(),
-                ) {
-                    Err(_) => continue,
-                    Ok(_) => {
-                        let log = TransferLog {
-                            id: id.clone(),
-                            at: current_time,
-                            memo: arg.memo.clone(),
-                            from: caller.clone(),
-                            to: arg.to.clone(),
-                        };
-                        TOKENS.with(|tokens| tokens.borrow_mut().insert(id.clone(), token));
-
-                        TRANSFER_LOG.with(|log_ref| log_ref.borrow_mut().push(&log).unwrap());
-                    }
-                }
-            }
-            if unauthorized.len() > 0 {
-                return Err(TransferError::Unauthorized {
-                    tokens_ids: unauthorized,
-                });
-            }
-
-            Ok(increment_tx_id())
-        }
-        // default behaviour of atomic
-        _ => {
-            for (_, e) in tx_deduplication.iter() {
-                return Err(e.clone());
-            }
-            if unauthorized.len() > 0 {
-                return Err(TransferError::Unauthorized {
-                    tokens_ids: unauthorized,
-                });
-            }
-            for id in arg.token_ids.iter() {
-                let mut token = TOKENS.with(|tokens| tokens.borrow().get(id).unwrap());
-                token.transfer(
-                    current_time + config.permitted_drift,
-                    &caller,
-                    arg.to.clone(),
-                )?;
-                let log = TransferLog {
-                    id: id.clone(),
-                    at: current_time,
-                    memo: arg.memo.clone(),
-                    from: caller.clone(),
-                    to: arg.to.clone(),
-                };
-
-                TOKENS.with(|tokens| tokens.borrow_mut().insert(id.clone(), token));
-                TRANSFER_LOG.with(|log_ref| log_ref.borrow_mut().push(&log).unwrap());
-            }
-
-            Ok(increment_tx_id())
+        if let Some(index) = tx_deduplication_check(
+            permitted_past_time,
+            arg_time,
+            &arg.memo,
+            arg.token_id,
+            &caller,
+            &arg.to,
+        ) {
+            tx_deduplication.insert(
+                arg.token_id,
+                TransferError::Duplicate {
+                    duplicate_of: index as u128,
+                },
+            );
         }
     }
-}
 
-#[update]
-pub fn icrc7_approve(arg: ApprovalArgs) -> Result<u128, ApprovalError> {
-    let caller = ICRCAccount::from(ic_cdk::caller());
-
-    let token_ids = match arg.token_ids {
-        None => icrc7_tokens_of(caller.clone()),
-        Some(ids) => {
-            id_validity_check(&ids);
-            ids
-        }
+    let token = match TOKENS.with(|tokens| tokens.borrow().get(&arg.token_id)) {
+        None => ic_cdk::trap("Invalid Id"),
+        Some(token) => token,
     };
 
-    if token_ids.len() == 0 {
-        ic_cdk::trap("No Tokens Available")
+    let approval_check = token.approval_check(current_time + config.permitted_drift, &caller);
+    if token.owner != caller && !approval_check {
+        return Err(TransferError::Unauthorized);
     }
-    let approve_for = ICRCAccount::from(arg.spender);
-    let approval = Approval {
-        account: approve_for,
-        expires_at: arg.expires_at,
+
+    if let Some(e) = tx_deduplication.get(&arg.token_id) {
+        return Err(e.clone());
+    }
+    let mut token = TOKENS.with(|tokens| tokens.borrow().get(&arg.token_id).unwrap());
+
+    token
+        .transfer(
+            current_time + config.permitted_drift,
+            &caller,
+            arg.to.clone(),
+        )
+        .unwrap();
+
+    let log = TransferLog {
+        id: arg.token_id,
+        at: current_time,
+        memo: arg.memo.clone(),
+        from: caller.clone(),
+        to: arg.to.clone(),
     };
 
-    TOKENS.with(|tokens| {
-        for id in token_ids.iter() {
-            let mut token = tokens.borrow().get(id).unwrap();
-            token.approve(&caller, approval.clone())?;
-            tokens.borrow_mut().insert(id.clone(), token);
-        }
+    TOKENS.with(|tokens| tokens.borrow_mut().insert(arg.token_id, token));
+    TRANSFER_LOG.with(|log_ref| log_ref.borrow_mut().push(&log).unwrap());
 
-        Ok(increment_tx_id())
-    })
+    Ok(increment_tx_id())
 }
 
-#[update]
-pub fn icrc7_mint(arg: MintArgs) -> u128 {
+#[update(guard = "caller_is_controller")]
+pub fn mint(arg: MintArgs) -> u128 {
     let token = Token {
         id: arg.id,
         name: arg.name,
@@ -346,10 +251,6 @@ pub fn icrc7_mint(arg: MintArgs) -> u128 {
     };
 
     let config = get_icrc7_config();
-
-    if ic_cdk::caller() != config.minting_authority {
-        ic_cdk::trap("Unauthorized Caller")
-    }
 
     if let Some(cap) = config.supply_cap {
         if cap < get_total_supply() {
@@ -424,8 +325,23 @@ pub fn update_config(arg: CollectionConfig) {
     });
 }
 
+fn update_status(msg_id: u128, id: u128, expiry: u64, state: MintState) {
+    STATUS_MAP.with(|sm| {
+        let mut sm = sm.borrow_mut();
+        sm.insert(
+            msg_id,
+            MintStatus {
+                id,
+                amount: 1,
+                expiry,
+                state,
+            },
+        );
+    });
+}
+
 #[update]
-pub async fn mint_cknft(id: u64, chain_id: u64, target_eth_wallet: String) -> SelfMintArgs {
+pub async fn mint_cknft(id: u128, chain_id: u64, target_eth_wallet: String) -> SelfMintArgs {
     let caller = ic_cdk::caller();
     let caller_subaccount = Subaccount::from(caller);
 
@@ -445,32 +361,15 @@ pub async fn mint_cknft(id: u64, chain_id: u64, target_eth_wallet: String) -> Se
     let now = ic_cdk::api::time();
     let expiry = now / 1_000_000_000 + config.tx_window;
 
-    fn update_status(msg_id: u128, id: u64, expiry: u64, state: MintState) {
-        STATUS_MAP.with(|sm| {
-            let mut sm = sm.borrow_mut();
-            sm.insert(
-                msg_id,
-                MintStatus {
-                    id,
-                    amount: 1,
-                    expiry,
-                    state,
-                },
-            );
-        });
-    }
-
     update_status(msg_id, id, expiry, MintState::Init);
 
     // transfer CKNFT to this canister
-    let transfer_args = TransferArgs {
+    let transfer_args = TransferArg {
         to: ICRCAccount::from(ic_cdk::id()),
-        from: ICRCAccount::from(caller),
-        token_ids: vec![id as u128],
+        from_subaccount: Some(caller_subaccount),
+        token_id: id,
         memo: None,
-        is_atomic: None,
         created_at_time: None,
-        spender_subaccount: None,
     };
 
     icrc7_transfer(transfer_args).unwrap();
@@ -480,7 +379,7 @@ pub async fn mint_cknft(id: u64, chain_id: u64, target_eth_wallet: String) -> Se
     let cknft_eth_address = hex_string_with_0x_to_vec(&config.cknft_eth_address).unwrap();
 
     let mut payload_to_sign: [u8; 192] = [0; 192];
-    payload_to_sign[24..32].copy_from_slice(&u64::from(id.clone()).to_be_bytes());
+    payload_to_sign[24..32].copy_from_slice(&id.to_be_bytes());
     payload_to_sign[44..64]
         .copy_from_slice(&hex_string_with_0x_to_vec(&target_eth_wallet).unwrap());
     payload_to_sign[80..96].copy_from_slice(&msg_id.to_be_bytes());

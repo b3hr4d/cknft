@@ -1,7 +1,7 @@
 use crate::{
     crypto::EcdsaSignature,
-    errors::{ApprovalError, TransferError},
-    types::{CollectionMetadata, MintStatus},
+    types::{ApprovalError, TransferError},
+    types::{CollectionMetadata, Memo, MintStatus},
 };
 use b3_utils::{
     ledger::{ICRC1MetadataValue, ICRCAccount},
@@ -12,7 +12,7 @@ use b3_utils::{
     nonce::Nonce,
     Subaccount,
 };
-use candid::{CandidType, Decode, Encode, Nat, Principal};
+use candid::{CandidType, Decode, Encode, Nat};
 use serde_bytes::ByteBuf;
 use serde_derive::{Deserialize, Serialize};
 use std::cell::RefCell;
@@ -36,16 +36,20 @@ pub fn get_icrc7_config() -> CollectionConfig {
     })
 }
 
-#[derive(CandidType, Clone, Serialize, Deserialize)]
+#[derive(Default, CandidType, Clone, Serialize, Deserialize)]
 pub struct CollectionConfig {
-    pub name: String,
     pub symbol: String,
-    pub royalties: Option<u16>,
-    pub minting_authority: Principal,
-    pub royalty_recipient: Option<ICRCAccount>,
+    pub name: String,
     pub description: Option<String>,
-    pub image: Option<String>,
+    pub logo: Option<String>,
+    pub total_supply: u128,
     pub supply_cap: Option<u128>,
+    pub max_query_batch_size: Option<u128>,
+    pub max_update_batch_size: Option<u128>,
+    pub default_take_value: Option<u128>,
+    pub max_take_value: Option<u128>,
+    pub max_memo_size: Option<u128>,
+    pub atomic_batch_transfers: Option<bool>,
     pub tx_window: u64,
     pub permitted_drift: u64,
     pub cknft_eth_address: String,
@@ -64,25 +68,6 @@ impl Storable for CollectionConfig {
     }
 }
 
-impl Default for CollectionConfig {
-    fn default() -> Self {
-        Self {
-            name: String::new(),
-            symbol: String::new(),
-            royalties: None,
-            minting_authority: Principal::anonymous(),
-            royalty_recipient: None,
-            description: None,
-            image: None,
-            supply_cap: None,
-            tx_window: 0,
-            permitted_drift: 0,
-            cknft_eth_address: String::new(),
-            ecdsa_key_name: String::new(),
-        }
-    }
-}
-
 impl CollectionConfig {
     pub fn name(&self) -> String {
         self.name.clone()
@@ -92,20 +77,12 @@ impl CollectionConfig {
         self.symbol.clone()
     }
 
-    pub fn royalties(&self) -> Option<u16> {
-        self.royalties.clone()
-    }
-
-    pub fn royalty_recipient(&self) -> Option<ICRCAccount> {
-        self.royalty_recipient.clone()
-    }
-
     pub fn description(&self) -> Option<String> {
         self.description.clone()
     }
 
-    pub fn image(&self) -> Option<String> {
-        self.image.clone()
+    pub fn logo(&self) -> Option<String> {
+        self.logo.clone()
     }
 
     pub fn supply_cap(&self) -> Option<u128> {
@@ -116,12 +93,18 @@ impl CollectionConfig {
         CollectionMetadata {
             icrc7_name: self.name.clone(),
             icrc7_symbol: self.symbol.clone(),
-            icrc7_royalties: self.royalties.clone(),
-            icrc7_royalty_recipient: self.royalty_recipient.clone(),
             icrc7_description: self.description.clone(),
-            icrc7_image: self.image.clone(),
-            icrc7_total_supply: get_total_supply(),
-            icrc7_supply_cap: self.supply_cap.clone(),
+            icrc7_logo: self.logo.clone(),
+            icrc7_total_supply: self.total_supply,
+            icrc7_supply_cap: self.supply_cap,
+            icrc7_max_query_batch_size: self.max_query_batch_size,
+            icrc7_max_update_batch_size: self.max_update_batch_size,
+            icrc7_default_take_value: self.default_take_value,
+            icrc7_max_take_value: self.max_take_value,
+            icrc7_max_memo_size: self.max_memo_size,
+            icrc7_atomic_batch_transfers: self.atomic_batch_transfers,
+            icrc7_tx_window: self.tx_window,
+            icrc7_permitted_drift: self.permitted_drift,
         }
     }
 }
@@ -200,9 +183,7 @@ impl Token {
             ic_cdk::trap("Self Transfer")
         }
         if self.owner != *caller && !self.approval_check(permitted_time, caller) {
-            return Err(TransferError::Unauthorized {
-                tokens_ids: vec![self.id],
-            });
+            return Err(TransferError::Unauthorized);
         } else {
             self.owner = to;
             self.approvals.clear();
@@ -223,29 +204,21 @@ impl Storable for Token {
     }
 }
 
-pub fn id_validity_check(ids: &Vec<u128>) {
-    let mut invalid_ids = vec![];
-
-    TOKENS.with(|tokens| {
-        for id in ids.iter() {
-            match tokens.borrow().get(id) {
-                Some(_) => continue,
-                None => invalid_ids.push(id.clone()),
-            }
+pub fn id_validity_check(id: u128) {
+    TOKENS.with(|tokens| match tokens.borrow().get(&id) {
+        Some(_) => (),
+        None => {
+            let error_msg = format!("Invalid Token Id: {:?}", id);
+            ic_cdk::trap(&error_msg);
         }
     });
-
-    if invalid_ids.len() > 0 {
-        let error_msg = format!("Invalid Token Ids: {:?}", invalid_ids);
-        ic_cdk::trap(&error_msg)
-    }
 }
 
 #[derive(CandidType, Serialize, Deserialize)]
 pub struct TransferLog {
     pub id: u128,
     pub at: u64,
-    pub memo: Option<Vec<u8>>,
+    pub memo: Option<Memo>,
     pub from: ICRCAccount,
     pub to: ICRCAccount,
 }
@@ -289,7 +262,7 @@ pub fn get_total_supply() -> u128 {
 pub fn tx_deduplication_check(
     permitted_past_time: u64,
     created_at_time: u64,
-    memo: &Option<Vec<u8>>,
+    memo: &Option<Memo>,
     id: u128,
     caller: &ICRCAccount,
     to: &ICRCAccount,
