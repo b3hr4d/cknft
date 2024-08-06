@@ -436,7 +436,7 @@ pub async fn mint_cknft(id: u128, chain_id: u64, target_eth_wallet: String) -> S
 }
 
 #[update(guard = "caller_is_controller")]
-pub async fn update_ckicp_state() -> Vec<u8> {
+pub async fn update_cknft_state() -> Vec<u8> {
     let config = get_icrc7_config();
 
     let args = EcdsaPublicKeyArgument {
