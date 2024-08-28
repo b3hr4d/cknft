@@ -27,7 +27,5 @@ package-lock.json
 
 .yarn/
 
-lib
 cache
-forge
 broadcast
